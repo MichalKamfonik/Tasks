@@ -10,7 +10,7 @@ import java.util.*;
 
 public class TaskManager {
     private static String[][] tasks;
-    private static final String fileName = "tasks.csv";
+    private static final String FILE_NAME = "tasks.csv";
 
     public static void main(String[] args) {
         readFile();
@@ -18,40 +18,30 @@ public class TaskManager {
 
         while(!exit) {
             showMenu();
-            switch(chooseOption()) {
-                case "add": {
-                    addTask();
-                    break;
-                }
-                case "remove": {
-                    removeTask();
-                    break;
-                }
-                case "list": {
-                    listTasks();
-                    break;
-                }
-                case "exit": {
-                    writeFile();
+            switch (chooseOption()) {
+                case "add" -> addTask();
+                case "remove" -> removeTask();
+                case "list" -> listTasks();
+                case "exit" -> {
+                    exit();
                     exit = true;
-                    break;
                 }
-                default: {
-                    System.out.println(ConsoleColors.RED_BOLD+"Command unknown."+ConsoleColors.RESET);
-                }
+                default -> System.out.println(ConsoleColors.RED_BOLD
+                        + "Command unknown." + ConsoleColors.RESET);
             }
         }
     }
     private static void showMenu() {
         String[] options = {"add", "remove", "list", "exit"};
 
-        System.out.println(ConsoleColors.BLUE + "Please select an option:" + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.BLUE
+                + "Please select an option:" + ConsoleColors.RESET);
         for (String option: options) {
             System.out.println(option);
         }
     }
     private static void readFile() {
-        Path taskFile = Paths.get(fileName);
+        Path taskFile = Paths.get(FILE_NAME);
 
         try{
             List<String> readLines = Files.readAllLines(taskFile);
@@ -62,7 +52,8 @@ public class TaskManager {
             }
         }
         catch(IOException e) {
-            System.out.println(ConsoleColors.YELLOW_BOLD+"File \"tasks.csv\" not found, no data imported"
+            System.out.println(ConsoleColors.YELLOW_BOLD
+                    +"File \"tasks.csv\" not found, no data imported"
                     +ConsoleColors.RESET);
             tasks = new String[0][];
         }
@@ -72,6 +63,7 @@ public class TaskManager {
         return scan.nextLine();
     }
     private static void listTasks() {
+        System.out.println("list");
         for(int i=0; i<tasks.length; i++) {
             System.out.print(i + " :");
             for(String str: tasks[i]) {
@@ -81,6 +73,7 @@ public class TaskManager {
         }
     }
     private static void addTask() {
+        System.out.println("add");
         Scanner scan = new Scanner(System.in);
 
         tasks = Arrays.copyOf(tasks,tasks.length+1);
@@ -94,10 +87,10 @@ public class TaskManager {
         tasks[tasks.length-1][2] = scan.nextLine();
     }
     private static void removeTask() {
+        System.out.println("remove");
+        System.out.println("Please select number to remove.");
         Scanner scan = new Scanner(System.in);
         int chosen = -1;
-
-        System.out.println("Please select number to remove.");
 
         while(chosen<0) {
             String scanned = scan.next();
@@ -109,33 +102,41 @@ public class TaskManager {
                         +"Incorrect argument passed. Please give number greater or equal to 0"
                         +ConsoleColors.RESET);
             }
-        }
-        try {
-            tasks=ArrayUtils.remove(tasks,chosen);
-            System.out.println(ConsoleColors.GREEN+"Value was successfully deleted."+ConsoleColors.RESET);
-        }
-        catch(IndexOutOfBoundsException e) {
-            System.out.println(ConsoleColors.RED_BOLD+"There is no such task."+ConsoleColors.RESET);
+            else {
+                try {
+                    tasks=ArrayUtils.remove(tasks,chosen);
+                    System.out.println(ConsoleColors.GREEN
+                            +"Value was successfully deleted."+ConsoleColors.RESET);
+                }
+                catch(IndexOutOfBoundsException e) {
+                    System.out.println(ConsoleColors.RED_BOLD
+                            +"There is no such task."+ConsoleColors.RESET);
+                    chosen = -1;
+                }
+            }
         }
     }
-
+    private static void exit() {
+        System.out.println("exit");
+        writeFile();
+        System.out.println(ConsoleColors.RED+"Bye, bye."+ConsoleColors.RESET);
+    }
     private static void writeFile() {
-        try(FileWriter fileWriter = new FileWriter(fileName,false)){
-            for (int i=0; i<tasks.length; i++) {
-                for (int j=0; j<tasks[i].length; j++) {
-                    fileWriter.append(tasks[i][j]);
-                    if(j<2) {
+        try(FileWriter fileWriter = new FileWriter(FILE_NAME,false)){
+            for (String[] task : tasks) {
+                for (int i = 0; i < task.length; i++) {
+                    fileWriter.append(task[i]);
+                    if (i < 2) {
                         fileWriter.append(',');
-                    }
-                    else {
+                    } else {
                         fileWriter.append('\n');
                     }
                 }
             }
         }
         catch(IOException e) {
-            System.out.println(ConsoleColors.RED_BOLD+"Writing file error. Data was lost."+ConsoleColors.RESET);
+            System.out.println(ConsoleColors.RED_BOLD
+                    +"Writing file error. Data was lost."+ConsoleColors.RESET);
         }
-        System.out.println(ConsoleColors.RED+"Bye, bye."+ConsoleColors.RESET);
     }
 }
